@@ -8,6 +8,21 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import axios from 'axios';
+import { Formik } from 'formik';
+import * as yup from 'yup';
+
+const loginValidationSchema = yup.object().shape({
+  userName: yup.string().required('Username is Required'),
+  email: yup
+    .string()
+    .email('Please enter valid email')
+    .required('Email Address is Required'),
+  password: yup
+    .string()
+    .min(8, ({ min }) => `Password must be at least ${min} characters`)
+    .required('Password is required'),
+  confirmPassword: yup.string().oneOf([yup.ref('password'), null]),
+});
 
 const Signup = ({ apiUrl, setIsLogin }) => {
   const [email, setEmail] = useState('');
@@ -38,39 +53,77 @@ const Signup = ({ apiUrl, setIsLogin }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Sign up</Text>
-      <View style={styles.form}>
-        <View style={styles.inputs}>
-          <TextInput
-            style={styles.input}
-            placeholder='Username'
-            onChangeText={setUserName}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder='Email'
-            onChangeText={setEmail}
-          />
-          <TextInput
-            style={styles.input}
-            secureTextEntry={true}
-            placeholder='Password'
-            onChangeText={setPassword}
-          />
-          <TextInput
-            style={styles.input}
-            secureTextEntry={true}
-            placeholder='Confirm Password'
-            onChangeText={setConfirmPassword}
-          />
-          {error && <Text style={styles.message}>{error}</Text>}
-          <TouchableOpacity style={styles.button} onPress={onSubmitHandler}>
-            <Text style={styles.text}>Sign Up</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.loginButton}>
-            <Text style={styles.text} onPress={() => setIsLogin(true)}>Login</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Formik
+        validationSchema={loginValidationSchema}
+        initialValues={{
+          userName: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+        }}
+        onSubmit={(values) => console.log(values)}
+      >
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          values,
+          errors,
+          touched,
+          isValid,
+        }) => (
+          <View style={styles.form}>
+            <View style={styles.inputs}>
+              <TextInput
+                name='userName'
+                style={styles.input}
+                placeholder='Username'
+                onChangeText={handleChange('userName')}
+                onBlur={handleBlur('userName')}
+                value={values.userName}
+              />
+              {errors.userName && touched.userName && (
+                <Text style={styles.message}>{errors.userName}</Text>
+              )}
+              <TextInput
+                name='email'
+                style={styles.input}
+                placeholder='Email'
+                onChangeText={handleChange('email')}
+                onBlur={handleBlur('email')}
+                value={values.email}
+              />
+              <TextInput
+                name='password'
+                style={styles.input}
+                secureTextEntry={true}
+                placeholder='Password'
+                onChangeText={handleChange('password')}
+                onBlur={handleBlur('password')}
+                value={values.password}
+              />
+              <TextInput
+                name='confirmPassword'
+                style={styles.input}
+                secureTextEntry={true}
+                placeholder='Confirm Password'
+                onChangeText={handleChange('confirmPassword')}
+                onBlur={handleBlur('confirmPassword')}
+                value={values.confirmPassword}
+              />
+              {error && <Text style={styles.message}>{error}</Text>}
+              <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+                <Text style={styles.text}>Sign Up</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.loginButton}>
+                <Text style={styles.text} onPress={() => setIsLogin(true)}>
+                  Login
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      </Formik>
       <StatusBar style='auto' />
     </View>
   );
