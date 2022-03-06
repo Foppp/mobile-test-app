@@ -1,66 +1,44 @@
+import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  ImageBackground,
+} from 'react-native';
+import axios from 'axios';
+import bgImg from '../assets/background.png';
+import Login from '../components/Login';
+import Signup from '../components/Signup';
+
+const apiUrl = 'http://10.0.0.196:5000';
 
 const AuthScreen = () => {
+  const [isLogin, setIsLogin] = useState(true);
+
+  const onChangeHandler = () => {
+    setIsLogin(!isLogin);
+    setMessage('');
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.heading}>Login</Text>
-      <View style={styles.form}>
-        <View style={styles.inputs}>
-          <TextInput style={styles.input} placeholder='Username' />
-          <TextInput
-            style={styles.input}
-            secureTextEntry={true}
-            placeholder='Password'
-          />
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.text}>Login</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-      <StatusBar style='auto' />
-    </View>
+    <ImageBackground source={bgImg} style={styles.image}>
+      {isLogin ? (
+        <Login setIsLogin={setIsLogin} apiUrl={apiUrl}/>
+      ) : (
+        <Signup setIsLogin={setIsLogin} apiUrl={apiUrl} />
+      )}
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  heading: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    marginTop: '35%',
-    color: 'black',
-    textAlign: 'center',
-  },
-  form: {
-    justifyContent: 'space-between',
-    paddingBottom: '160%',
-  },
-  inputs: {
-    width: '100%',
+  image: {
     flex: 1,
-    justifyContent: 'center',
-  },
-  input: {
-    width: '100%',
-    borderBottomWidth: 0.5,
-    borderBottomColor: 'black',
-    paddingTop: 10,
-    marginTop: '5%',
-    fontSize: 16,
-    minHeight: 40,
-    width: 250,
-  },
-  text: {
-    color: 'black',
-    fontSize: 20,
-  },
-  button: {
     width: '100%',
     alignItems: 'center',
-    marginTop: 30,
-    padding: 15,
-    borderRadius: 10,
-    backgroundColor: '#DCDCDC',
   },
 });
 
