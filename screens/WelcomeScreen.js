@@ -7,7 +7,7 @@ const MainScreen = ({navigation}) => {
     <ImageBackground source={bgImg} style={styles.image}>
       <View style={styles.container}>
         <Text>Welcome to the App</Text>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Authorization')}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('LoadingScreen')}>
             <Text style={styles.text}>Get Started</Text>
           </TouchableOpacity>
       </View>

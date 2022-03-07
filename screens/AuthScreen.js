@@ -1,21 +1,14 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  ImageBackground,
-} from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, ImageBackground } from 'react-native';
 import axios from 'axios';
-import bgImg from '../assets/background.png';
 import Login from '../components/Login';
 import Signup from '../components/Signup';
+import bgImg from '../assets/background.png';
 
-const apiUrl = 'http://10.0.0.196:5000';
+const apiUrl = 'http://10.0.0.237:5000';
 
-const AuthScreen = () => {
+const AuthScreen = ({ navigation }) => {
   const [isLogin, setIsLogin] = useState(true);
 
   const onChangeHandler = () => {
@@ -26,9 +19,9 @@ const AuthScreen = () => {
   return (
     <ImageBackground source={bgImg} style={styles.image}>
       {isLogin ? (
-        <Login setIsLogin={setIsLogin} apiUrl={apiUrl}/>
+        <Login setIsLogin={setIsLogin} apiUrl={apiUrl} navigation={navigation}/>
       ) : (
-        <Signup setIsLogin={setIsLogin} apiUrl={apiUrl} />
+        <Signup setIsLogin={setIsLogin} apiUrl={apiUrl} navigation={navigation} />
       )}
     </ImageBackground>
   );

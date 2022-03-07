@@ -1,85 +1,99 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-} from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 import axios from 'axios';
+import { Formik } from 'formik';
+import * as yup from 'yup';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Login = ({ apiUrl, setIsLogin }) => {
-  const [userName, setUserName] = useState('');
-  const [password, setPassword] = useState('');
+const loginValidationSchema = yup.object().shape({
+  userName: yup.string().required('Username is Required'),
+  password: yup.string().required('Password is required'),
+});
 
+const Login = ({ apiUrl, setIsLogin, navigation }) => {
   const [error, setError] = useState(null);
   const [message, setMessage] = useState('');
 
-  const onLoggedIn = (token) => {
-    fetch(`${apiUrl}/private`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then(async (res) => {
-        try {
-          const jsonRes = await res.json();
-          if (res.status === 200) {
-            setMessage(jsonRes.message);
-          }
-        } catch (err) {
-          console.log(err);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+  const onSubmitHandler = async ({ userName, password }) => {
+    try {
+      const { data } = await axios.post(`${apiUrl}/login`, { userName, password });
+      await AsyncStorage.setItem('token', data.token);
+      setError(null);
+      navigation.replace('Main');
+    } catch (err) {
+      console.log(err.message);
+      setError('Wrong username or password!');
+    }
   };
-  // const onSubmitHandler = async () => {
-  //   try {
-  //     const { data } = await axios.post(`${API_URL}/signup`, {
-  //       userName,
-  //       email,
-  //       password,
-  //     });
-  //     setError(null);
-  //   } catch (err) {
-  //     setError(
-  //       err.response.status === 409
-  //         ? 'User already exist!'
-  //         : 'Error while creating user. Try again!'
-  //     );
-  //   }
-  // };
 
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Login</Text>
-      <View style={styles.form}>
-        <View style={styles.inputs}>
-          <TextInput
-            style={styles.input}
-            placeholder='Username'
-            onChangeText={setUserName}
-          />
-          <TextInput
-            style={styles.input}
-            secureTextEntry={true}
-            placeholder='Password'
-            onChangeText={setPassword}
-          />
-          {error && <Text style={styles.message}>{error}</Text>}
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.text}>Log In</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.signButton}>
-            <Text style={styles.text} onPress={() => setIsLogin(false)}>Sign up</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Formik
+        validationSchema={loginValidationSchema}
+        initialValues={{
+          userName: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+        }}
+        onSubmit={(values) => onSubmitHandler(values)}
+      >
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          values,
+          errors,
+          touched,
+          isValid,
+        }) => (
+          <View style={styles.form}>
+            <View style={styles.inputs}>
+              <TextInput
+                name='userName'
+                style={styles.input}
+                placeholder='Username'
+                onChangeText={handleChange('userName')}
+                onBlur={handleBlur('userName')}
+                value={values.userName}
+              />
+              {errors.userName && touched.userName && (
+                <Text style={styles.message}>{errors.userName}</Text>
+              )}
+
+              <TextInput
+                name='password'
+                style={styles.input}
+                secureTextEntry={true}
+                placeholder='Password'
+                onChangeText={handleChange('password')}
+                onBlur={handleBlur('password')}
+                value={values.password}
+              />
+              {errors.password && touched.password && (
+                <Text style={styles.message}>{errors.password}</Text>
+              )}
+              {error && <Text style={styles.message}>{error}</Text>}
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleSubmit}
+                disabled={!isValid}
+              >
+                <Text style={isValid ? styles.text : styles.textDisabled}>
+                  Login
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.signupButton}>
+                <Text style={styles.text} onPress={() => setIsLogin(false)}>
+                  Sign Up
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
+      </Formik>
       <StatusBar style='auto' />
     </View>
   );
@@ -121,7 +135,7 @@ const styles = StyleSheet.create({
     color: 'black',
     fontSize: 20,
   },
-  signButton: {
+  signupButton: {
     width: '100%',
     alignItems: 'center',
     marginTop: 10,
@@ -138,6 +152,10 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     backgroundColor: '#DCDCDC',
+  },
+  textDisabled: {
+    color: '#FFFAF0',
+    fontSize: 20,
   },
   message: {
     fontSize: 16,

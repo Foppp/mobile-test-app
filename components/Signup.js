@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-} from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { Formik } from 'formik';
 import * as yup from 'yup';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const loginValidationSchema = yup.object().shape({
   userName: yup.string().required('Username is Required'),
@@ -21,26 +16,25 @@ const loginValidationSchema = yup.object().shape({
     .string()
     .min(8, ({ min }) => `Password must be at least ${min} characters`)
     .required('Password is required'),
-  confirmPassword: yup.string().oneOf([yup.ref('password'), null]),
+  confirmPassword: yup
+    .mixed()
+    .oneOf([yup.ref('password')], 'Passwords must match'),
 });
 
-const Signup = ({ apiUrl, setIsLogin }) => {
-  const [email, setEmail] = useState('');
-  const [userName, setUserName] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-
+const Signup = ({ apiUrl, setIsLogin, navigation }) => {
   const [error, setError] = useState(null);
   const [message, setMessage] = useState('');
 
-  const onSubmitHandler = async () => {
+  const onSubmitHandler = async ({ userName, email, password }) => {
     try {
       const { data } = await axios.post(`${apiUrl}/signup`, {
         userName,
         email,
         password,
       });
+      await AsyncStorage.setItem('token', data.token);
       setError(null);
+      navigation.replace('LoadingScreen');
     } catch (err) {
       setError(
         err.response.status === 409
@@ -61,7 +55,7 @@ const Signup = ({ apiUrl, setIsLogin }) => {
           password: '',
           confirmPassword: '',
         }}
-        onSubmit={(values) => console.log(values)}
+        onSubmit={(values) => onSubmitHandler(values)}
       >
         {({
           handleChange,
@@ -93,6 +87,9 @@ const Signup = ({ apiUrl, setIsLogin }) => {
                 onBlur={handleBlur('email')}
                 value={values.email}
               />
+              {errors.email && touched.email && (
+                <Text style={styles.message}>{errors.email}</Text>
+              )}
               <TextInput
                 name='password'
                 style={styles.input}
@@ -102,6 +99,9 @@ const Signup = ({ apiUrl, setIsLogin }) => {
                 onBlur={handleBlur('password')}
                 value={values.password}
               />
+              {errors.password && touched.password && (
+                <Text style={styles.message}>{errors.password}</Text>
+              )}
               <TextInput
                 name='confirmPassword'
                 style={styles.input}
@@ -111,9 +111,18 @@ const Signup = ({ apiUrl, setIsLogin }) => {
                 onBlur={handleBlur('confirmPassword')}
                 value={values.confirmPassword}
               />
+              {errors.confirmPassword && touched.confirmPassword && (
+                <Text style={styles.message}>{errors.confirmPassword}</Text>
+              )}
               {error && <Text style={styles.message}>{error}</Text>}
-              <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-                <Text style={styles.text}>Sign Up</Text>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={handleSubmit}
+                disabled={!isValid}
+              >
+                <Text style={isValid ? styles.text : styles.textDisabled}>
+                  Sign Up
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.loginButton}>
                 <Text style={styles.text} onPress={() => setIsLogin(true)}>
@@ -142,7 +151,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   form: {
-    marginTop: 90,
+    marginTop: 110,
     justifyContent: 'space-between',
     paddingBottom: '160%',
   },
@@ -182,6 +191,10 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 10,
     backgroundColor: '#DCDCDC',
+  },
+  textDisabled: {
+    color: '#FFFAF0',
+    fontSize: 20,
   },
   message: {
     fontSize: 16,
