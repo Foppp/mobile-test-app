@@ -8,7 +8,9 @@ const signup = async (req, res) => {
     const dbUser = await User.findOne({ userName: req.body.userName });
     if (dbUser) return res.status(409).json({ message: 'user already exists' });
     const user = await User.create({ email, userName, password });
-    const token = jwt.sign({ email }, 'secret', { expiresIn: '1h' });
+    const token = jwt.sign({ email: user.email }, 'secret', {
+      expiresIn: '1h',
+    });
     res.send({ token });
   } catch (err) {
     return res.status(422).send({ message: 'error while creating the user' });
@@ -17,16 +19,32 @@ const signup = async (req, res) => {
 
 const login = async (req, res) => {
   const { userName, password } = req.body;
+  if (!userName || !password) {
+    return res.status(422).send({ error: 'must provide email or password' });
+  }
+  const user = await User.findOne({ userName: req.body.userName });
+  if (!user) {
+    return res.status(422).send({ error: 'must provide email or password' });
+  }
   try {
-    const user = await User.findOne({ userName });
-    const result = await bcrypt.compare(password, user.password);
-    const token = jwt.sign({ email: user.email }, 'secret', { expiresIn: '1h' });
-    res.send({ token });
+    bcrypt.hash(password, 10, (err, hash) => {
+      if (err) {
+        throw err;
+      }
+      bcrypt.compare(user.password, hash, function (err, result) {
+        if (result) {
+          const token = jwt.sign({ email: user.email }, 'secret');
+          res.send({ token });
+        } else {
+          res.status(422).send({ error: 'must provide email or password' });
+        }
+      });
+    });
   } catch (err) {
-    return res.status(422).send({ error: "Error in credentails" });
+    return res.status(422).send({ error: 'must provide email or password' });
+    console.log('this is error', err);
   }
 };
-
 
 const isAuth = (req, res, next) => {
   const { authorization } = req.headers;

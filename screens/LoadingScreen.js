@@ -4,12 +4,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import bgImg from '../assets/background.png';
 
 const LoadingScreen = ({ navigation }) => {
+
   const detectLogin = async () => {
     const token = await AsyncStorage.getItem('token');
     if (token) {
-      navigation.replace('Main');
+      navigation.replace('Products');
     } else {
-      navigation.replace('Authorization');
+      navigation.replace('Login');
     }
   };
 

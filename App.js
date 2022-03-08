@@ -1,47 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, ImageBackground } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Login from './components/Login';
-import Signup from './components/Signup';
-import Main from './components/Main';
-import Products from './components/Products';
-import AuthScreen from './screens/AuthScreen.js';
-import WelcomeScreen from './screens/WelcomeScreen';
+import LoginScreen from './screens/LoginScreen';
+import SignupScreen from './screens/SignupScreen';
 import MainScreen from './screens/MainScreen';
 import LoadingScreen from './screens/LoadingScreen';
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
-  const [isloggedin, setLogged] = useState(null);
-
-  const detectLogin = async () => {
-    const token = await AsyncStorage.getItem('token');
-    if (token) {
-      setLogged(true);
-    } else {
-      setLogged(false);
-    }
-  };
-
-  useEffect(() => {
-    detectLogin();
-  }, []);
 
   return (
     <NavigationContainer>
-      <Stack.Navigator headerMode='none' initialRouteName='Welcome'>
-        <Stack.Screen
-          name='Welcome'
-          component={WelcomeScreen}
-          options={{
-            title: '',
-            headerTransparent: true,
-            headerTintColor: 'transparent',
-          }}
-        />
+      <Stack.Navigator headerMode='none' initialRouteName='LoadingScreen' >
         <Stack.Screen
           name='LoadingScreen'
           options={{
@@ -53,8 +26,8 @@ const App = () => {
           component={LoadingScreen}
         />
         <Stack.Screen
-          name='Authorization'
-          component={AuthScreen}
+          name='Login'
+          component={LoginScreen}
           options={{
             title: '',
             headerTransparent: true,
@@ -63,9 +36,18 @@ const App = () => {
           }}
         />
         <Stack.Screen
-          name='Main'
+          name='Signup'
+          component={SignupScreen}
           options={{
-            title: 'Main',
+            title: '',
+            headerTransparent: true,
+            headerTintColor: 'black',
+            headerTitleAlign: 'center',
+          }}
+        />
+        <Stack.Screen
+          name='Products'
+          options={{
             headerTransparent: true,
             headerTintColor: 'black',
             headerTitleAlign: 'center',
