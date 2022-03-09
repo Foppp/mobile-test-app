@@ -10,7 +10,7 @@ import LoadingScreen from './screens/LoadingScreen';
 
 const Stack = createNativeStackNavigator();
 
-const App = () => {
+const App = ({ navigation }) => {
 
   return (
     <NavigationContainer>

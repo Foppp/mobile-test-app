@@ -4,7 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import bgImg from '../assets/background.png';
 
-const apiUrl = 'http://10.0.0.40:5000';
+// const apiUrl = 'http://10.0.0.40:5000';
+const apiUrl = 'https://mobile-test-task.herokuapp.com'
 
 const MainScreen = ({ navigation }) => {
   const [isloggedin, setLogged] = useState(null);
@@ -25,7 +26,7 @@ const MainScreen = ({ navigation }) => {
     } catch (err) {
       console.log(err);
       setLogged(false);
-      navigation.replace('Authorization');
+      navigation.replace('Login');
     }
   };
 
@@ -47,10 +48,10 @@ const MainScreen = ({ navigation }) => {
 
   const logout = () => {
     AsyncStorage.removeItem('token').then(() => {
-      navigation.replace('Authorization');
+      navigation.replace('Login');
     });
-    navigation.replace('Login');
   };
+
   const renderItem = ({ item }) => {
     return (
       <View style={styles.itemWrapperStyle}>
