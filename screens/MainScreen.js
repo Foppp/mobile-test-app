@@ -4,8 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import bgImg from '../assets/background.png';
 
-// const apiUrl = 'http://10.0.0.40:5000';
-const apiUrl = 'https://mobile-test-task.herokuapp.com'
+const apiUrl = 'http://10.0.0.79:5000';
 
 const MainScreen = ({ navigation }) => {
   const [isloggedin, setLogged] = useState(null);
