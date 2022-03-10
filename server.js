@@ -27,7 +27,7 @@ app.use(router);
 
 connectToDatabase();
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Port running at ${port}`)
 });
