@@ -7,7 +7,7 @@ import * as yup from 'yup';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import bgImg from '../assets/background.png';
 
-const apiUrl = 'https://mobile-test-task.herokuapp.com/';
+const apiUrl = 'https://mobile-test-task.herokuapp.com';
 
 
 const loginValidationSchema = yup.object().shape({
